@@ -12,7 +12,7 @@ namespace LittleBank.Api.Models
         public CardTypes Type { get; set; }
         public bool IsActive { get; set; } = true;
 
-        public User User { get; set; }
+        public Client Client { get; set; }
         
         public virtual ICollection<Operation> Operations { get; set; } = new HashSet<Operation>();
     }

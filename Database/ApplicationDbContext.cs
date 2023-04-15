@@ -9,14 +9,12 @@ namespace LittleBank.Api.Database
         public DbSet<Card> Cards { get; set; }
         public DbSet<Client> Clients { get; set; }
         public DbSet<Employee> Employees { get; set; }
-
         public DbSet<Credit> Credits { get; set; }
-
         public DbSet<Operation> Operations { get; set; }
 
         public ApplicationDbContext(DbContextOptions options) : base(options)
-        { 
-            Database.EnsureCreated();
+        {
+            Database.Migrate();
         }
     }
 }

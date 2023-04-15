@@ -21,26 +21,33 @@ namespace LittleBank.Api.Controllers
 
         [HttpPost]
         [SwaggerOperation(Summary = "Авторизация пользователя")]
-        [SwaggerResponse(200,"Информация о пользователе с ролью")]
-        [SwaggerResponse(404,"Ошибка авторизации")]
+        [SwaggerResponse(200, "Информация о пользователе с ролью")]
+        [SwaggerResponse(404, "Ошибка авторизации")]
         public async Task<IActionResult> AuthorizeUser([FromBody] AuthorizationDTO dto)
         {
-            var user = await _context.Users.FirstOrDefaultAsync(u => u.Password == dto.Password && u.Login == dto.Login);
-
-            if (user is null)
+            try
             {
-                return NotFound();
-            }
+                var user = await _context.Users.FirstOrDefaultAsync(u => u.Password == dto.Password && u.Login == dto.Login);
 
-            var claims = new Claim[]
-            {
+                if (user is null)
+                {
+                    return NotFound();
+                }
+
+                var claims = new Claim[]
+                {
                 new Claim("Role", user.Role.GetDisplayName()),
                 new Claim("Id", user.Id.ToString())
-            };
+                };
 
-            var principal = new ClaimsPrincipal(new ClaimsIdentity(claims));
+                var principal = new ClaimsPrincipal(new ClaimsIdentity(claims));
 
-            return Ok(principal);
+                return new JsonResult(claims);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
     }
 }

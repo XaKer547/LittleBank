@@ -24,9 +24,9 @@ namespace LittleBank.Api.Controllers
         [SwaggerResponse(423, "Карта заблокирована")]
         [SwaggerResponse(404, "Карты не существует")]
         [SwaggerResponse(200, "Информация о карте")]
-        public async Task<IActionResult> Get(int id, int cardId)
+        public async Task<IActionResult> GetById(int id, int cardId)
         {
-            var card = await _context.Cards.FirstOrDefaultAsync(x => x.User.Id == id && x.Id == cardId);
+            var card = await _context.Cards.FirstOrDefaultAsync(x => x.Client.Id == id && x.Id == cardId);
 
             if (card == null)
                 return NotFound();
@@ -80,13 +80,19 @@ namespace LittleBank.Api.Controllers
             {
                 Number = dto.Number,
                 Type = dto.Type,
-                User = client.User
+                Client = client
             };
+            try
+            {
+                _context.Cards.Add(card);
+                await _context.SaveChangesAsync();
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
 
-            _context.Cards.Add(card);
-            await _context.SaveChangesAsync();
-
-            return CreatedAtAction(nameof(Get), new { id, cardId = card.Id }, card);
+            return CreatedAtAction(nameof(GetById), new { cardId = card.Id }, card);
         }
 
 
@@ -103,7 +109,7 @@ namespace LittleBank.Api.Controllers
             if (user is null)
                 return NotFound("Карта не найдена");
 
-            var card = await _context.Cards.FirstOrDefaultAsync(x => x.Id == dto.Id && x.User.Id == id);
+            var card = await _context.Cards.FirstOrDefaultAsync(x => x.Id == dto.Id && x.Client.Id == id);
 
             if (card is null)
                 return NotFound("Карта не найдена");
@@ -151,7 +157,7 @@ namespace LittleBank.Api.Controllers
             if (user is null)
                 return NotFound("Карта не найдена");
 
-            var card = await _context.Cards.FirstOrDefaultAsync(x=> x.Id == cardId && x.User.Id == id);
+            var card = await _context.Cards.FirstOrDefaultAsync(x=> x.Id == cardId && x.Client.Id == id);
 
             if (card is null)
                 return NotFound("Карта не найдена");
