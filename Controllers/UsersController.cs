@@ -69,14 +69,40 @@ namespace LittleBank.Api.Controllers
         [SwaggerResponse(204, "Пользователь удален")]
         public async Task<IActionResult> Delete(int id)
         {
-            var user = await _context.Users.FirstOrDefaultAsync(u => u.Id == id);
+            var user = await _context.Users
+                .Include(x=> x.Employee)
+                .Include(x=> x.Client)
+                .FirstOrDefaultAsync(u => u.Id == id);
 
             if (user is null)
                 return NotFound();
 
-            _context.Users.Remove(user);
+            try
+            {
+                if(user.Employee is not null)
+                {
+                    var employee = user.Employee;
+                    employee.User = null;
+                    _context.Update(employee);
+                }
 
-            await _context.SaveChangesAsync();
+                if (user.Client is not null)
+                {
+                    var client = user.Client;
+                    client.User = null;
+                    _context.Update(client);
+                }
+
+                await _context.SaveChangesAsync();
+
+                _context.Users.Remove(user);
+
+                await _context.SaveChangesAsync();
+
+            }catch(Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
 
             return NoContent();
         }

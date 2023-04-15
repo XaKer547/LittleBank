@@ -17,6 +17,9 @@ namespace LittleBank.Api.Models
         public string PassportNumber { get; set; }
         public string Address { get; set; }
 
-        public User? User { get; set; }
+        public int? UserId { get; set; }
+
+        [ForeignKey(nameof(UserId))]
+        public virtual User? User { get; set; }
     }
 }

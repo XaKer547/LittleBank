@@ -34,13 +34,20 @@ namespace LittleBank.Api.Controllers
             if (!card.IsActive)
                 return new StatusCodeResult(StatusCodes.Status423Locked);
 
-            return Ok(card);
+            return Ok(new
+            {
+                card.Id,
+                card.IsActive,
+                card.Number,
+                card.Sum,
+                card.Type
+            });
         }
 
 
         [HttpGet]
         [SwaggerOperation(
-            Summary = "Получить карты пользователя")]
+            Summary = "Получить карты клиента")]
         [SwaggerResponse(404, "Клиент не найден")]
         [SwaggerResponse(200, "Клиент с информацией о незаблокированных картах")]
         public async Task<IActionResult> Get(int id)
@@ -67,7 +74,7 @@ namespace LittleBank.Api.Controllers
         [HttpPost]
         [SwaggerOperation(
             Summary = "Создать новую карту клиента")]
-        [SwaggerResponse(201, "Создано")]
+        [SwaggerResponse(204, "Создано")]
         [SwaggerResponse(404, "Такого клиента не существует")]
         public async Task<IActionResult> Post([FromBody] CreateCardDTO dto, int id)
         {
@@ -80,7 +87,8 @@ namespace LittleBank.Api.Controllers
             {
                 Number = dto.Number,
                 Type = dto.Type,
-                Client = client
+                Client = client,
+                IsActive = true
             };
             try
             {
@@ -92,7 +100,7 @@ namespace LittleBank.Api.Controllers
                 return BadRequest(ex.Message);
             }
 
-            return CreatedAtAction(nameof(GetById), new { cardId = card.Id }, card);
+            return NoContent();
         }
 
 
@@ -114,7 +122,7 @@ namespace LittleBank.Api.Controllers
             if (card is null)
                 return NotFound("Карта не найдена");
 
-            if (card.IsActive)
+            if (!card.IsActive)
                 return new StatusCodeResult(StatusCodes.Status423Locked);
 
             if (dto.Operation == OperationTypes.Withdraw)

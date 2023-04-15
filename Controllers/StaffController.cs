@@ -73,7 +73,7 @@ namespace LittleBank.Api.Controllers
             _context.Employees.Add(employee);
             await _context.SaveChangesAsync();
 
-            return CreatedAtAction(nameof(Get), new { id = employee.Id }, employee);
+            return CreatedAtAction(nameof(Get), new { id = employee.Id });
         }
 
 

@@ -16,7 +16,10 @@ namespace LittleBank.Api.Models
         public string PassportSeries { get; set; }
         public string PassportNumber { get; set; }
 
-        public User? User { get; set; }
+        public int? UserId { get; set; }
+
+        [ForeignKey(nameof(UserId))]
+        public virtual User? User { get; set; }
         public virtual ICollection<Card> Cards { get; set; } = new HashSet<Card>();
 
         public virtual ICollection<Credit> Credits { get; set; } = new HashSet<Credit>();
